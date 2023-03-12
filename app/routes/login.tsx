@@ -1,54 +1,108 @@
-import type { ActionArgs } from "@remix-run/node";
-import { useSearchParams } from "@remix-run/react";
-import invariant from "tiny-invariant";
-import { badRequest } from "~/utils/request.server";
+import { ActionArgs, redirect } from "@remix-run/node";
+import { useActionData, useSearchParams } from "@remix-run/react";
 
-import { login } from "~/utils/session.server";
+import { badRequest } from "~/utils/request.server";
+import { findUserByUsername, login } from "~/utils/session.server";
+
+function validateUsername(username: string) {
+  const length = username.length;
+  if (length < 6 || length > 10) {
+    return 'Usernames must be between 6 and 10 characters'
+  }
+}
+
+function validatePassword(password: string) {
+  const length = password.length;
+  if (length < 6 || length > 10) {
+    return 'Password must be between 6 and 10 characters'
+  }
+}
+
+function validateRedirectUrl(url: string): string {
+  const validUrls = ['/', '/jokes'];
+
+  if (validUrls.includes(url)) {
+    return url;
+  }
+
+  return '/jokes';
+}
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
 
-  const redirectTo = formData.get("redirectTo");
   const username = formData.get("username");
   const password = formData.get("password");
   const loginRegister = formData.get("loginRegister");
+  const redirectTo = formData.get('redirectTo');
 
-  invariant(typeof username === "string");
-  invariant(typeof password === "string");
-  invariant(typeof redirectTo === "string");
+  if (typeof redirectTo !== 'string' || typeof username !== 'string' || typeof password !== 'string' || typeof redirectTo !== 'string') {
+    return badRequest({
+      fieldErrors: null,
+      fields: null,
+      formError: 'Form not submitted correctly'
+    });
+  }
 
-  console.log("In action");
+  const validatedRedirectTo = validateRedirectUrl(redirectTo || '/jokes');
 
-  if (loginRegister === "login") {
-    console.log("In good if");
-    console.log(username);
-    console.log(password);
-    const user = await login(username, password);
+  const fields = { loginRegister, username, password };
+  const fieldErrors = {
+    username: validateUsername(username),
+    password: validatePassword(password),
+  }
 
-    console.log("user", user);
+  if (Object.values(fieldErrors).some(Boolean)) {
+    return badRequest({
+      fieldErrors,
+      fields,
+      formError: null,
+    });
+  }
 
-    if (!user) {
+  switch (loginRegister) {
+    case 'login': {
+      const user = await login(username, password);
+
+      if (!user) {
+        return badRequest({
+          fieldErrors: null,
+          fields,
+          formError: "Username/Password combination is incorrect",
+        });
+      }
+
+      return redirect(validatedRedirectTo);
+    }
+    case 'register':
+      const user = await findUserByUsername(username);
+
+      if (user) {
+        return badRequest({
+          fieldErrors: null,
+          fields,
+          formError: `User with username ${username} already exists`,
+        });
+      }
+
       return badRequest({
-        errors: "Username/Password combination is incorrect",
+        fieldErrors: null,
+        fields,
+        formError: 'Feature not implemented yet'
+      });
+    default: {
+      return badRequest({
+        fieldErrors: null,
+        fields,
+        formError: 'Login type invalid'
       });
     }
-
-    // create user session
-    return null;
-  } else {
-    // const user = await db.user.create({
-    //   data: {
-    //     username,
-    //     passwordHash: await bcrypt.hash(password),
-    //   },
-    // });
-
-    return null;
   }
 }
 
 export default function LoginRoute() {
   const [searchParams] = useSearchParams();
+  const actionData = useActionData<typeof action>();
 
   return (
     <div>
@@ -62,7 +116,14 @@ export default function LoginRoute() {
         />
         <div>
           <label htmlFor="login">
-            <input type="radio" name="loginRegister" id="login" value="login" />{" "}
+            <input
+              required
+              type="radio"
+              name="loginRegister"
+              id="login"
+              value="login"
+              defaultChecked={!actionData?.fields?.loginRegister || actionData.fields.loginRegister === 'login'}
+            />{" "}
             Login
           </label>
         </div>
@@ -73,6 +134,7 @@ export default function LoginRoute() {
               name="loginRegister"
               id="register"
               value="register"
+              defaultChecked={!actionData?.fields?.loginRegister || actionData.fields.loginRegister === 'register'}
             />{" "}
             Register
           </label>
@@ -81,15 +143,24 @@ export default function LoginRoute() {
         <div>
           <label htmlFor="name">Username:</label>
           <br />
-          <input id="username" name="username" type="text" required />
+          <input id="username" name="username" type="text" required defaultValue={actionData?.fields?.username} />
+          {actionData?.fieldErrors?.username && (
+            <p>*{actionData.fieldErrors.username}</p>
+          )}
         </div>
         <div>
           <label htmlFor="password">Password:</label>
           <br />
-          <input id="password" type="password" name="password" required />
+          <input id="password" type="password" name="password" required defaultValue={actionData?.fields?.password} />
+          {actionData?.fieldErrors?.password && (
+            <p>*{actionData.fieldErrors.password}</p>
+          )}
         </div>
         <button type="submit">Submit</button>
       </form>
+      {actionData?.formError && (
+        <p>*{actionData.formError}</p>
+      )}
     </div>
   );
 }

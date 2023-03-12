@@ -4,6 +4,8 @@ import { json } from "@remix-run/node";
 import { db } from "~/utils/db.server";
 
 export async function loader() {
+  // redirect if user is not logged in
+
   return json({
     jokes: await db.joke.findMany({
       select: {

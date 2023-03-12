@@ -44,6 +44,7 @@ export async function action({ request }: ActionArgs) {
   }
 
   const createdJoke = await db.joke.create({
+    // Add logged in user
     data: {
       name,
       content,
@@ -75,7 +76,7 @@ export default function NewJokeRoute() {
           )}
         </div>
         <div>
-          <label htmlFor="content">Content</label>
+          <label htmlFor="content">Content:</label>
           <br />
           <textarea
             name="content"

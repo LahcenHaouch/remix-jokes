@@ -3,12 +3,16 @@ import bcrypt from "bcryptjs";
 
 import { db } from "./db.server";
 
-export async function login(username: string, password: string) {
-  const user = await db.user.findUnique({
+export async function findUserByUsername(username: string) {
+  return await db.user.findUnique({
     where: {
       username,
     },
   });
+}
+
+export async function login(username: string, password: string) {
+  const user = await findUserByUsername(username);
 
   if (!user) {
     return null;
