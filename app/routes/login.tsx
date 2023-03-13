@@ -2,7 +2,7 @@ import { ActionArgs, redirect } from "@remix-run/node";
 import { useActionData, useSearchParams } from "@remix-run/react";
 
 import { badRequest } from "~/utils/request.server";
-import { findUserByUsername, login } from "~/utils/session.server";
+import { createUserSession, findUserByUsername, login } from "~/utils/session.server";
 
 function validateUsername(username: string) {
   const length = username.length;
@@ -72,7 +72,7 @@ export async function action({ request }: ActionArgs) {
         });
       }
 
-      return redirect(validatedRedirectTo);
+      return createUserSession(user.id, redirectTo);
     }
     case 'register':
       const user = await findUserByUsername(username);
