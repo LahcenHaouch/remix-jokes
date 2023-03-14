@@ -72,7 +72,7 @@ export async function action({ request }: ActionArgs) {
         });
       }
 
-      return createUserSession(user.id, redirectTo);
+      return createUserSession(user.id, validatedRedirectTo);
     }
     case 'register':
       const user = await findUserByUsername(username);

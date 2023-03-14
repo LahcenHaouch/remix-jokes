@@ -14,7 +14,6 @@ function validateContent(content: string): boolean {
 }
 
 export async function action({ request }: ActionArgs) {
-  // check if user is connected
 
   const formData = await request.formData();
 
