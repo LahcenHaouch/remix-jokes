@@ -1,21 +1,25 @@
 import { Link, Outlet, useLoaderData } from "@remix-run/react";
-import { json } from "@remix-run/node";
+import { json, LoaderArgs } from "@remix-run/node";
 
 import { db } from "~/utils/db.server";
+import { getUser } from "~/utils/session.server";
 
-export async function loader() {
-  // redirect if user is not logged in
+export async function loader({ request }: LoaderArgs) {
+  const user = await getUser(request);
+  const jokes = await db.joke.findMany({
+    take: 5,
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   return json({
-    jokes: await db.joke.findMany({
-      select: {
-        id: true,
-        name: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    }),
+    jokes,
+    user
   });
 }
 
@@ -24,6 +28,12 @@ export default function JokesRoute() {
 
   return (
     <div>
+      {data.user && (<div>
+        Hello {data.user.username}
+        <form action="/logout" method="post">
+          <button type="submit">Logout</button>
+        </form>
+      </div>)}
       <h2>Latest jokes:</h2>
       <ul>
         {data.jokes.map((joke) => (
