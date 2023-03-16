@@ -1,5 +1,6 @@
 import type { LinksFunction } from "@remix-run/node";
 import { Links, LiveReload, Outlet } from "@remix-run/react";
+import { ReactNode } from "react";
 
 export const links: LinksFunction = () => {
   return [
@@ -16,17 +17,41 @@ export const links: LinksFunction = () => {
 
 export default function App() {
   return (
-    <html lang="en">
+    <Document
+      title="Remix Jokes"
+    >
+      <h1>Remix Jokes</h1>
+      <Outlet />
+    </Document>
+  );
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return (
+    <Document title="Ouups">
+      <h1>App Error</h1>
+      <pre>{error.message}</pre>
+    </Document>
+  )
+}
+
+type DocumentProps = {
+  title: string;
+  children: ReactNode;
+}
+
+function Document({ title, children }: DocumentProps) {
+  return (
+    <html>
       <head>
         <meta charSet="utf-8" />
-        <title>Remix Jokes</title>
+        <title>{title}</title>
         <Links />
       </head>
       <body>
-        <h1>Remix Jokes</h1>
-        <Outlet />
+        {children}
         <LiveReload />
       </body>
     </html>
-  );
+  )
 }
