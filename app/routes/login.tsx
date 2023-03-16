@@ -1,8 +1,8 @@
-import { ActionArgs, redirect } from "@remix-run/node";
+import { ActionArgs } from "@remix-run/node";
 import { useActionData, useSearchParams } from "@remix-run/react";
 
 import { badRequest } from "~/utils/request.server";
-import { createUserSession, findUserByUsername, login } from "~/utils/session.server";
+import { createUserSession, findUserByUsername, login, register } from "~/utils/session.server";
 
 function validateUsername(username: string) {
   const length = username.length;
@@ -75,9 +75,9 @@ export async function action({ request }: ActionArgs) {
       return createUserSession(user.id, validatedRedirectTo);
     }
     case 'register':
-      const user = await findUserByUsername(username);
+      const userExists = await findUserByUsername(username);
 
-      if (user) {
+      if (userExists) {
         return badRequest({
           fieldErrors: null,
           fields,
@@ -85,11 +85,17 @@ export async function action({ request }: ActionArgs) {
         });
       }
 
-      return badRequest({
-        fieldErrors: null,
-        fields,
-        formError: 'Feature not implemented yet'
-      });
+      const user = await register(username, password);
+
+      if (!user) {
+        return badRequest({
+          fieldErrors: null,
+          fields,
+          formError: 'Something went wrong during new user creation.'
+        });
+      }
+
+      return createUserSession(user.id, validatedRedirectTo);
     default: {
       return badRequest({
         fieldErrors: null,

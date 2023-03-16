@@ -63,6 +63,22 @@ export async function logout(request: Request) {
   });
 }
 
+export async function register(username: string, password: string) {
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = await db.user.create({
+    data: {
+      username,
+      passwordHash
+    }
+  });
+
+  return {
+    id: user.id,
+    username,
+  };
+}
+
 const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   throw new Error('SESSION_SECRET must be set');
