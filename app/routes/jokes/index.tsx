@@ -34,3 +34,11 @@ export default function JokesIndexRoute() {
     </div >
   );
 }
+
+export function ErrorBoundary() {
+  return (
+    <div>
+      Something wrong happened
+    </div>
+  )
+}

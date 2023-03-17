@@ -95,3 +95,11 @@ export default function NewJokeRoute() {
     </div>
   );
 }
+
+export function ErrorBoundary() {
+  return (
+    <div>
+      Something unexpected went wrong. Sorry about that.
+    </div>
+  )
+}
