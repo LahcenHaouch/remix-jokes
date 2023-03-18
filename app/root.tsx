@@ -1,5 +1,5 @@
 import type { LinksFunction } from "@remix-run/node";
-import { Links, LiveReload, Outlet } from "@remix-run/react";
+import { Links, LiveReload, Outlet, useCatch } from "@remix-run/react";
 import { ReactNode } from "react";
 
 export const links: LinksFunction = () => {
@@ -24,6 +24,16 @@ export default function App() {
       <Outlet />
     </Document>
   );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  return (<Document
+    title={`${caught.status} ${caught.statusText}`}
+  >
+    <h1>J{caught.status} {caught.statusText}</h1>
+  </Document >)
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
