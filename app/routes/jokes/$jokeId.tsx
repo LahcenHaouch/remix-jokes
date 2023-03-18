@@ -1,23 +1,21 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { useLoaderData, useParams } from "@remix-run/react";
+import { useCatch, useLoaderData, useParams } from "@remix-run/react";
 
 import { db } from "~/utils/db.server";
 
 export async function loader({ params }: LoaderArgs) {
   const id = params.jokeId;
 
-  return json({
-    joke: await db.joke.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        name: true,
-        content: true,
-      },
-    }),
-  });
+  const joke = await db.joke.findUnique({ where: { id }, select: { name: true, content: true } });
+
+  if (!joke) {
+    throw new Response('What a joke! Not found', {
+      status: 404
+    });
+  }
+
+  return json({ joke });
 }
 
 export default function JokeRoute() {
@@ -33,6 +31,21 @@ export default function JokeRoute() {
       <blockquote>{data.joke.content}</blockquote>
     </div>
   );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+  const params = useParams();
+
+  if (caught.status === 404) {
+    return (
+      <div>
+        <h3>Huh? What the heck is "{params.jokeId}"?</h3>
+      </div>
+    )
+  }
+
+  throw new Error(`Unhandled error: ${caught.status}`);
 }
 
 export function ErrorBoundary() {
