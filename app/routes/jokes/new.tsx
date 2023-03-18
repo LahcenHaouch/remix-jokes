@@ -1,6 +1,5 @@
-import type { ActionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import { useActionData } from "@remix-run/react";
+import { ActionArgs, json, LoaderArgs, redirect } from "@remix-run/node";
+import { Link, useActionData, useCatch } from "@remix-run/react";
 
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
@@ -54,6 +53,16 @@ export async function action({ request }: ActionArgs) {
   return redirect(`/jokes/${createdJoke.id}`);
 }
 
+export async function loader({ request }: LoaderArgs) {
+  const userId = await requireUserId(request);
+
+  if (!userId) {
+    throw new Response('', { status: 401 });
+  }
+
+  return json({});
+}
+
 export default function NewJokeRoute() {
   const actionData = useActionData<typeof action>();
 
@@ -94,6 +103,19 @@ export default function NewJokeRoute() {
       </form>
     </div>
   );
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+
+  if (caught.status === 401) {
+    return (
+      <div>
+        <p>You must be logged in to create a joke.</p>
+        <Link to="/login">Login</Link>
+      </div>
+    )
+  }
 }
 
 export function ErrorBoundary() {
