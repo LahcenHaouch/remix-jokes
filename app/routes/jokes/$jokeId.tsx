@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { useCatch, useLoaderData, useParams } from "@remix-run/react";
 
 import { db } from "~/utils/db.server";
-import { requireUserId } from "~/utils/session.server";
+import { getUserId, requireUserId } from "~/utils/session.server";
 
 export async function action({ params, request }: ActionArgs) {
   const form = await request.formData();
@@ -29,10 +29,10 @@ export async function action({ params, request }: ActionArgs) {
   return redirect('/jokes');
 }
 
-export async function loader({ params }: LoaderArgs) {
+export async function loader({ request, params }: LoaderArgs) {
   const id = params.jokeId;
-
-  const joke = await db.joke.findUnique({ where: { id }, select: { name: true, content: true } });
+  const userId = await getUserId(request);
+  const joke = await db.joke.findUnique({ where: { id }, select: { name: true, content: true, userId: true } });
 
   if (!joke) {
     throw new Response('What a joke! Not found', {
@@ -40,7 +40,12 @@ export async function loader({ params }: LoaderArgs) {
     });
   }
 
-  return json({ joke });
+  return json({
+    joke: {
+      name: joke.name,
+      content: joke.content,
+    }, isOwner: joke.userId === userId
+  });
 }
 
 export default function JokeRoute() {
@@ -54,9 +59,12 @@ export default function JokeRoute() {
     <div>
       <div>
         <h3>{data.joke.name}</h3>
-        <form method="post">
-          <button name="intent" value="delete">Delete</button>
-        </form>
+        {
+          data.isOwner &&
+          (<form method="post">
+            <button name="intent" value="delete">Delete</button>
+          </form>)
+        }
       </div>
       <blockquote>{data.joke.content}</blockquote>
     </div>
