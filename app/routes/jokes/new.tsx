@@ -3,7 +3,7 @@ import { Link, useActionData, useCatch } from "@remix-run/react";
 
 import { db } from "~/utils/db.server";
 import { badRequest } from "~/utils/request.server";
-import { requireUserId } from "~/utils/session.server";
+import { getUserId, requireUserId } from "~/utils/session.server";
 
 function validateName(name: string): boolean {
   return name.length >= 5;
@@ -54,7 +54,7 @@ export async function action({ request }: ActionArgs) {
 }
 
 export async function loader({ request }: LoaderArgs) {
-  const userId = await requireUserId(request);
+  const userId = await getUserId(request);
 
   if (!userId) {
     throw new Response('', { status: 401 });
