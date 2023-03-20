@@ -1,5 +1,5 @@
-import type { LinksFunction } from "@remix-run/node";
-import { Links, LiveReload, Outlet, useCatch } from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { Meta, Links, LiveReload, Outlet, useCatch } from "@remix-run/react";
 import { ReactNode } from "react";
 
 export const links: LinksFunction = () => {
@@ -14,6 +14,14 @@ export const links: LinksFunction = () => {
     },
   ];
 };
+
+export function meta(): ReturnType<MetaFunction> {
+  return {
+    title: 'Remix Jokes',
+    charset: 'utf-8',
+    description: 'Jokes and stuff'
+  }
+}
 
 export default function App() {
   return (
@@ -54,7 +62,7 @@ function Document({ title, children }: DocumentProps) {
   return (
     <html>
       <head>
-        <meta charSet="utf-8" />
+        <Meta />
         <title>{title}</title>
         <Links />
       </head>
