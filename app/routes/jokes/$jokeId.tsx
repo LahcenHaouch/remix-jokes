@@ -10,14 +10,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
     return {
       title: 'No joke',
       description: 'No joke found'
-    }
+    };
   }
 
   return {
     title: `"${data.joke.name}" joke`,
     description: `Enjoy the "${data.joke.name}" joke and much more`
-  }
-}
+  };
+};
 
 export async function action({ params, request }: ActionArgs) {
   const form = await request.formData();

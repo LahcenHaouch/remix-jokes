@@ -1,5 +1,5 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import { Meta, Links, LiveReload, Outlet, useCatch } from "@remix-run/react";
+import { Meta, Links, LiveReload, Outlet, useCatch, Link } from "@remix-run/react";
 import { ReactNode } from "react";
 
 export const links: LinksFunction = () => {
@@ -28,7 +28,7 @@ export default function App() {
     <Document
       title="Remix Jokes"
     >
-      <h1>Remix Jokes</h1>
+      <h1><Link to="/jokes">Remix Jokes</Link></h1>
       <Outlet />
     </Document>
   );
