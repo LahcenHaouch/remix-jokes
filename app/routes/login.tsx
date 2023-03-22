@@ -1,8 +1,8 @@
-import { ActionArgs } from "@remix-run/node";
+import { ActionArgs, LoaderArgs, redirect } from "@remix-run/node";
 import { useActionData, useSearchParams } from "@remix-run/react";
 
 import { badRequest } from "~/utils/request.server";
-import { createUserSession, findUserByUsername, login, register } from "~/utils/session.server";
+import { createUserSession, findUserByUsername, getUserId, login, register } from "~/utils/session.server";
 
 function validateUsername(username: string) {
   const length = username.length;
@@ -104,6 +104,16 @@ export async function action({ request }: ActionArgs) {
       });
     }
   }
+}
+
+export async function loader({ request }: LoaderArgs) {
+  const userId = await getUserId(request);
+
+  if (!userId) {
+    return null;
+  }
+
+  return redirect('/jokes');
 }
 
 export default function LoginRoute() {
