@@ -1,6 +1,8 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
 import { Meta, Links, LiveReload, Outlet, useCatch, Link } from "@remix-run/react";
 import { ReactNode } from "react";
+
+import stylesheet from '~/tailwind.css'
 
 export function meta(): ReturnType<MetaFunction> {
   return {
@@ -9,6 +11,12 @@ export function meta(): ReturnType<MetaFunction> {
     description: 'Jokes and stuff'
   }
 }
+
+export const links: LinksFunction = () => [
+  {
+    rel: 'stylesheet', href: stylesheet
+  }
+]
 
 export default function App() {
   return (
