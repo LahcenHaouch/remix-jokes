@@ -1,19 +1,6 @@
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/node";
 import { Meta, Links, LiveReload, Outlet, useCatch, Link } from "@remix-run/react";
 import { ReactNode } from "react";
-
-export const links: LinksFunction = () => {
-  return [
-    {
-      rel: "stylesheet",
-      href: "https://fonts.xz.style/serve/inter.css",
-    },
-    {
-      rel: "stylesheet",
-      href: "https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css",
-    },
-  ];
-};
 
 export function meta(): ReturnType<MetaFunction> {
   return {
