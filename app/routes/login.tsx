@@ -1,4 +1,4 @@
-import { ActionArgs, LoaderArgs, redirect } from "@remix-run/node";
+import { ActionArgs, LoaderArgs, MetaFunction, redirect } from "@remix-run/node";
 import { useActionData, useSearchParams } from "@remix-run/react";
 
 import { badRequest } from "~/utils/request.server";
@@ -27,6 +27,11 @@ function validateRedirectUrl(url: string): string {
 
   return '/jokes';
 }
+
+export const meta: MetaFunction = () => ({
+  title: 'Remix Jokes | Login',
+  description: 'Login to submit your own jokes to Remix Jokes!',
+});
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
