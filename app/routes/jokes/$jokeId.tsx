@@ -71,8 +71,8 @@ export default function JokeRoute() {
 
   return (
     <div>
-      <div>
-        <h3>{data.joke.name}</h3>
+      <div className="flex justify-between">
+        <h2 className="text-3xl">{data.joke.name}</h2>
         {
           data.isOwner &&
           (<form method="post">

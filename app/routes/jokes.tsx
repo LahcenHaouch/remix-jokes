@@ -27,23 +27,18 @@ export default function JokesRoute() {
   const data = useLoaderData<typeof loader>();
 
   return (
-    <div>
-      {data.user && (<div>
-        Hello {data.user.username}
-        <form action="/logout" method="post">
-          <button type="submit">Logout</button>
-        </form>
-      </div>)}
-      <h2>Latest jokes:</h2>
-      <ul>
-        {data.jokes.map((joke) => (
-          <li key={joke.id}>
-            <Link to={joke.id}>{joke.name}</Link>
-          </li>
-        ))}
-      </ul>
-      <Link to="new">Add your own</Link>
-      <hr />
+    <div className="flex space-x-56">
+      <div>
+        <h2 className="text-3xl">Latest jokes:</h2>
+        <ul>
+          {data.jokes.map((joke) => (
+            <li key={joke.id}>
+              <Link to={joke.id}>{joke.name}</Link>
+            </li>
+          ))}
+        </ul>
+        <Link to="new">Add your own</Link>
+      </div>
       <Outlet />
     </div>
   );
